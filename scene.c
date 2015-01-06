@@ -4,11 +4,13 @@
 #define PYARGS PyObject *self, PyObject *args
 
 /*
-drawing functions go here
+ellipse drawing - heavy!
 */
 
-void putpixel(SDL_Surface *surface, int x, int y, Uint32 pixel)
-{
+void putpixel(SDL_Surface *surface, int x, int y, Uint32 pixel) {
+    if (x < 0 || x >= SX) return;
+    if (y < 0 || y >= SY) return;
+
     int bpp = surface->format->BytesPerPixel;
     /* Here p is the address to the pixel we want to set */
     Uint8 *p = (Uint8 *)surface->pixels + y * surface->pitch + x * bpp;
@@ -40,6 +42,110 @@ void putpixel(SDL_Surface *surface, int x, int y, Uint32 pixel)
     }
 }
 
+
+void drawEllipsePart(float xc, float yc, float x, float y) {
+    Uint32 color = SDL_MapRGBA(screen->format,
+            stroke_color.r,
+            stroke_color.g,
+            stroke_color.b,
+            stroke_color.a);
+
+    putpixel(screen, (int) xc + x, (int) yc + y, color);
+    putpixel(screen, (int) xc - x, (int) yc + y, color);
+    putpixel(screen, (int) xc + x, (int) yc - y, color);
+    putpixel(screen, (int) xc - x, (int) yc - y, color);
+}
+
+
+void drawEllipse(float xc, float yc, float rx, float ry) {
+    float rxSq, rySq, x, y, px, py, p;
+
+    rxSq = rx * rx;
+    rySq = ry * ry;
+
+    x = 0;
+    y = ry;
+    px = 0;
+    py = 2 * rxSq * y;
+    drawEllipsePart(xc, yc, x, y);
+
+    // Region 1
+    p = rySq - (rxSq * ry) + (0.25 * rxSq);
+
+    while (px < py) {
+        x++;
+        px += 2 * rySq;
+
+        if (p < 0)
+            p += rySq + px;
+
+        else {
+            y--;
+            py -= 2 * rxSq;
+            p += rySq + px - py;
+        }
+
+        drawEllipsePart(xc, yc, x, y);
+    }
+    // Region 2
+    p = rySq * (x + 0.5) * (x + 0.5) + \
+        rxSq * (y - 1) * (y - 1) - rxSq * rySq;
+
+    while (y > 0) {
+        y -= 1;
+        py -= 2 * rxSq;
+
+        if (p > 0)
+            p += rxSq - py;
+
+        else {
+            x += 1;
+            px += 2 * rySq;
+            p += rxSq - py + px;
+        }
+
+        drawEllipsePart(xc, yc, x, y);
+    }
+}
+
+void filledEllipseRGBA(int ox, int oy, int w, int h) {
+    Uint32 color = SDL_MapRGBA(screen->format,
+            fill_color.r,
+            fill_color.g,
+            fill_color.b,
+            fill_color.a);
+
+    int hh = h * h;
+    int ww = w * w;
+
+    int hhww = hh * ww;
+
+    int x0 = w;
+    int dx = 0;
+    int x, y;
+
+    for (x = -w; x <= w; x++)
+        putpixel(screen, ox + x, oy, color);
+
+    for (y = 1; y <= h; y++) {
+        int x1 = x0 - (dx - 1);
+        for (;x1 > 0; x1--)
+            if (x1 * x1 * hh + y * y * ww <= hhww) break;
+
+        dx = x0 - x1;
+        x0 = x1;
+
+        for (x = -x0; x <= x0; x++) {
+            putpixel(screen, ox + x, oy - y, color);
+            putpixel(screen, ox + x, oy + y, color);
+        }
+    }
+}
+
+/*
+drawing functions go here
+*/
+
 void horizontal_line(SDL_Surface* screen, int x, int y, int w) {
     int i;
     for (i=0; i <= w; i++) {
@@ -68,7 +174,7 @@ void vertical_line(SDL_Surface* screen, int x, int y, int h) {
             h += y;
             y = 0;
         }
-        
+
         if (x >= SX) break;
         if (x < 0) break;
         putpixel(screen, x, y + i,
@@ -119,13 +225,7 @@ void strokeEllipseRGBA(SDL_Surface* screen, SDL_Rect* bounds) {
     h = bounds->h;
 
     while (_stroke--) {
-        ellipseRGBA(screen,
-                    x, y, w, h,
-
-                    stroke_color.r,
-                    stroke_color.g,
-                    stroke_color.b,
-                    stroke_color.a);
+        drawEllipse(x, y, w, h);
 
         w -= 1;
         h -= 1;
@@ -259,16 +359,10 @@ python scene_ellipse(PYARGS) {
 
     if (fill)
         filledEllipseRGBA(
-            screen,
             bounds.x,
             bounds.y,
             bounds.w,
-            bounds.h,
-
-            fill_color.r,
-            fill_color.g,
-            fill_color.b,
-            fill_color.a);
+            bounds.h);
 
     if (stroke)
         strokeEllipseRGBA(screen, &bounds);
