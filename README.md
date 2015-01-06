@@ -6,7 +6,7 @@ Python bindings for SDL.
 Installation
 ------------
 
-You can install it from source using `python setup.py build` or by downloading precompiled binaries at the bottom of README (only for Linux for now).
+You can install it from source using `python install.py` or by downloading precompiled binaries at the bottom of README (only for Linux for now).
 To install and use it you need `SDL` library. It can be obtained by using your packaging manager or from the website: http://libsdl.org.
 
 Make sure to download files from `python` directory. Then put `scene.py`, `_scene_types.py` and `_scene.so` (rename `scene.so` to `_scene.so` if needed) in the same directory and make sure it is in the PYTHONPATH. Then you can just `import scene` and it should work :].
