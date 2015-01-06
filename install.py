@@ -13,6 +13,13 @@ def run(cmd):
     if (os.system(cmd) != 0):
         sys.exit(1) # Stop if something fails
 
+def move(src, dst):
+    try:
+        shutil.move(src, dst)
+        return True
+    except:
+        return False
+
 print("Building")
 run("python setup.py build")   # build `scene'
 folders = os.listdir("build") # get folders
@@ -27,11 +34,14 @@ if not os.path.exists("scene"):
     os.mkdir("scene")
 
 for file in ["scene.py", "_scene_types.py", "sound.py"]:
-    print("Moving `%s'" % file)
-    shutil.move(file, "scene")
+    path = os.path.join("python", file)
+    print("Moving `%s'" % path)
+    if (not move(path, "scene")):
+        print("Failed to move %s" % path)
 
-print("Moving `%s'" % scene_fn)
-shutil.move(os.path.join("build", folder, scene_fn),
-            os.path.join("scene", "_scene.so"))
+path = os.path.join("build", folder, scene_fn)
+print("Moving `%s'" % path)
+if (not move(path, os.path.join("scene", "_scene.so"))):
+    print("Failed to move %s" % path)
 
 print("Done.")
