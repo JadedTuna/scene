@@ -1,7 +1,7 @@
 from distutils.core import setup, Extension
 
 module1 = Extension("scene",
-                    libraries = ["SDL", "SDL_gfx"],
+                    libraries = ["SDL"],
                     sources = ["scene.c"])
 
 setup (name = "scene",
@@ -12,5 +12,5 @@ setup (name = "scene",
        long_description = """\
 Python bindings for SDL allowing to
 run games made with `scene' library.
-"""
+""",
        ext_modules = [module1])
