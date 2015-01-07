@@ -82,10 +82,7 @@ def _size_as_tuple(size):
 
 class Color(object):
     def __eq__(self, other):
-        if isinstance(other, Color):
-            return self.as_tuple() == other.as_tuple()
-        else:
-            return False
+        return isinstance(other, Color) and self.as_tuple() == other.as_tuple()
     
     def __getitem__(self, index):
         return getattr(self, ("r", "g", "b", "a")[index])
@@ -124,16 +121,13 @@ class Color(object):
         Return a new dict which maps field names to their values.
         """
         return {"r": self.r,
-                    "g": self.g,
-                    "b": self.b,
-                    "a": self.a}
+                "g": self.g,
+                "b": self.b,
+                "a": self.a}
     
 class Point(object):
     def __eq__(self, other):
-        if isinstance(other, Point):
-            return self.as_tuple() == other.as_tuple()
-        else:
-            return False
+        return isinstance(other, Point) and self.as_tuple() == other.as_tuple()
     
     def __getitem__(self, index):
         return getattr(self, ("x", "y")[index])
@@ -171,16 +165,13 @@ class Point(object):
         Return a new dict which maps field names to their values.
         """
         return {"x": self.x,
-                    "y": self.y}
+                "y": self.y}
 
 class Rect(object):
     __contains__ = _rect_contains
     
     def __eq__(self, other):
-        if isinstance(other, Rect):
-            return self.as_tuple() == other.as_tuple()
-        else:
-            return False
+        return isinstance(other, Rect) and self.as_tuple() == other.as_tuple()
     
     def __getitem__(self, index):
         return getattr(self, ("x", "y", "w", "h")[index])
@@ -226,19 +217,15 @@ class Rect(object):
         Return a new dict which maps field names to their values.
         """
         return {"x": self.x,
-                    "y": self.y,
-                    "w": self.w,
-                    "h": self.h}
+                "y": self.y,
+                "w": self.w,
+                "h": self.h}
     
     top        = _rect_top
 
 class Size(object):
     def __eq__(self, other):
-        if isinstance(other, Size):
-            return (other.w == self.w and
-                        other.h == self.h)
-        else:
-            return False
+        return isinstance(other, Size) and other.w == self.w and other.h == self.h
     
     def __getitem__(self, index):
         return getattr(self, ("w", "h")[index])
@@ -275,7 +262,7 @@ class Size(object):
         Return a new dict which maps field names to their values.
         """
         return {"w": self.w,
-                    "h": self.h}
+                "h": self.h}
     
     top        = _rect_top
 
@@ -287,10 +274,7 @@ class Touch(object):
     """
     
     def __eq__(self, other_touch):
-        if isinstance(other_touch, Touch):
-            return self.touch_id == other_touch.touch_id
-        else:
-            return False
+        return isinstance(other_touch, Touch) and self.touch_id == other_touch.touch_id
     
     def __hash__(self):
         raise NotImplementedError
