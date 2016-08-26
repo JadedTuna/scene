@@ -1,9 +1,6 @@
 scene
 =====
 
-The development will continue from the end of January: I have a lot of tests at the school.
-=====
-
 Python bindings for SDL.
 
 Installation
